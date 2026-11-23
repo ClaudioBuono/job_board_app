@@ -192,7 +192,91 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        icon: const Icon(Icons.add),
+        label: const Text('Nuovo annuncio'),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CreateJobScreen()),
+          );
+        },
+      ),
       body: const Center(child: Text('Sei autenticato come azienda')),
+    );
+  }
+}
+
+
+// ======================= NUOVO ANNUNCIO (R4) =======================
+class CreateJobScreen extends StatefulWidget {
+  const CreateJobScreen({super.key});
+
+  @override
+  State<CreateJobScreen> createState() => _CreateJobScreenState();
+}
+
+class _CreateJobScreenState extends State<CreateJobScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _title = TextEditingController();
+  final _description = TextEditingController();
+  bool _loading = false;
+
+  @override
+  void dispose() {
+    _title.dispose();
+    _description.dispose();
+    super.dispose();
+  }
+
+  Future<void> _publish() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _loading = true);
+    try {
+      await Api.createJob(_title.text.trim(), _description.text.trim());
+      if (!mounted) return;
+      showMessage(context, 'Annuncio pubblicato!');
+      Navigator.pop(context); // torna all'area riservata
+    } catch (e) {
+      if (mounted) showMessage(context, errorText(e));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Nuovo annuncio')),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            TextFormField(
+              controller: _title,
+              decoration: const InputDecoration(labelText: 'Titolo', border: OutlineInputBorder()),
+              validator: (v) => (v == null || v.trim().isEmpty) ? 'Campo obbligatorio' : null,
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _description,
+              maxLines: 8,
+              decoration: const InputDecoration(
+                labelText: 'Descrizione',
+                alignLabelWithHint: true,
+                border: OutlineInputBorder(),
+              ),
+              validator: (v) => (v == null || v.trim().isEmpty) ? 'Campo obbligatorio' : null,
+            ),
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: _loading ? null : _publish,
+              child: const Text('Pubblica'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

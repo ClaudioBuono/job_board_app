@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 // Indirizzo del server:
 // - Emulatore Android: 10.0.2.2 (alias del PC che ospita l'emulatore)
 // - Telefono vero: IP del PC nella stessa rete Wi-Fi, es. http://192.168.1.20:3000
-const String baseUrl = 'http://10.0.2.2:3000';
+const String baseUrl = 'http://192.168.1.8:3000';
 
 // Toglie la scritta "Exception: " dai messaggi d'errore
 String errorText(Object e) => e.toString().replaceFirst('Exception: ', '');
@@ -80,5 +80,20 @@ class Api {
       // anche se il server non risponde, in locale usciamo comunque
     }
     await _setToken(null);
+  }
+  // R4 - Pubblica un annuncio (serve il token: auth = true)
+  static Future<void> createJob(String title, String description) async {
+    final res = await http.post(
+      Uri.parse('$baseUrl/api/jobs'),
+      headers: _headers(auth: true),
+      body: jsonEncode({'title': title, 'description': description}),
+    );
+    _decode(res);
+  }
+
+  // R5 - Elenco annunci (pubblico: nessun token)
+  static Future<List<dynamic>> getJobs() async {
+    final res = await http.get(Uri.parse('$baseUrl/api/jobs'));
+    return _decode(res);
   }
 }

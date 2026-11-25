@@ -117,40 +117,21 @@ class JobDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            // Se l'azienda è loggata, non può candidarsi (come da specifica di dominio)
-            if (Api.isLoggedIn)
-              const Card(
-                child: Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      Icon(Icons.info_outline),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Sei autenticato come azienda: esegui il logout per candidarti agli annunci.',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            else
-              FilledButton.icon(
-                icon: const Icon(Icons.send),
-                label: const Text('Candidati'),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ApplyScreen(
-                        jobId: job['id'],
-                        jobTitle: job['title'],
-                      ),
+            FilledButton.icon(
+              icon: const Icon(Icons.send),
+              label: const Text('Candidati'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ApplyScreen(
+                      jobId: job['id'],
+                      jobTitle: job['title'],
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),

@@ -1,11 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Indirizzo del server:
 // - Emulatore Android: 10.0.2.2 (alias del PC che ospita l'emulatore)
 // - Telefono vero: IP del PC nella stessa rete Wi-Fi, es. http://192.168.1.20:3000
-const String baseUrl = 'http://192.168.1.8:3000';
+const String baseUrl = 'http://192.168.1.12:3000';
 
 // Toglie la scritta "Exception: " dai messaggi d'errore
 String errorText(Object e) => e.toString().replaceFirst('Exception: ', '');
@@ -96,4 +97,46 @@ class Api {
     final res = await http.get(Uri.parse('$baseUrl/api/jobs'));
     return _decode(res);
   }
+
+  // R6 - Candidatura a un annuncio (multipart/form-data: campi testo + file PDF)
+  static Future<void> applyToJob({
+    required String jobId,
+    required String firstName,
+    required String lastName,
+    required String email,
+    required File cvFile,
+  }) async {
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$baseUrl/api/jobs/$jobId/applications'),
+    );
+
+    request.fields['firstName'] = firstName;
+    request.fields['lastName'] = lastName;
+    request.fields['email'] = email;
+    request.files.add(await http.MultipartFile.fromPath('cv', cvFile.path));
+
+    final streamedRes = await request.send();
+    final res = await http.Response.fromStream(streamedRes);
+    _decode(res); // Riusa il tuo helper per gestire errori 400/404/500!
+  }
+
+  // R7a - Elenco dei miei annunci con numero di candidature ricevute
+  static Future<List<dynamic>> getMyJobs() async {
+    final res = await http.get(
+      Uri.parse('$baseUrl/api/my/jobs'),
+      headers: _headers(auth: true),
+    );
+    return _decode(res);
+  }
+
+  // R7b - Candidature ricevute per un singolo annuncio
+  static Future<List<dynamic>> getJobApplications(String jobId) async {
+    final res = await http.get(
+      Uri.parse('$baseUrl/api/my/jobs/$jobId/applications'),
+      headers: _headers(auth: true),
+    );
+    return _decode(res);
+  }
 }
+

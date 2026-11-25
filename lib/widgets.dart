@@ -5,8 +5,6 @@ void showMessage(BuildContext context, String text) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
 }
 
-// Widget riutilizzabile: mostra caricamento / errore / lista vuota / lista.
-// "builder" è una funzione che passiamo noi e che costruisce la lista vera.
 class ListLoader extends StatelessWidget {
   final Future<List<dynamic>> future;
   final VoidCallback onRetry;

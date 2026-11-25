@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
 import 'api.dart';
+import 'company_screens.dart';
 import 'public_screens.dart';
 
-Future<void> main() async {
-  // Serve perché usiamo codice asincrono prima di runApp
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Api.loadToken(); // recupera l'eventuale login salvato sul telefono
-  runApp(const MyApp());
+  await Api.loadToken(); // carica l'eventuale token salvato
+  runApp(const JobBoardApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class JobBoardApp extends StatelessWidget {
+  const JobBoardApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Bacheca Lavoro',
-      theme: ThemeData(colorSchemeSeed: Colors.indigo, useMaterial3: true),
-      // La schermata iniziale è pubblica: il candidato non fa login
-      home: const JobListScreen(),
+      title: 'Bacheca Annunci',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark(),
+      // Se l'azienda è già loggata apre subito la Dashboard (I miei annunci / candidature),
+      // altrimenti apre la bacheca pubblica.
+      home: Api.isLoggedIn ? const DashboardScreen() : const JobListScreen(),
     );
   }
 }

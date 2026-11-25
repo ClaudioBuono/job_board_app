@@ -31,9 +31,12 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await Api.login(_email.text.trim(), _password.text);
       if (!mounted) return;
-      Navigator.pushReplacement(
+      // Cancella TUTTA la cronologia (inclusa la bacheca pubblica)
+      // così da loggato esiste solo l'area aziendale
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const DashboardScreen()),
+            (route) => false,
       );
     } catch (e) {
       if (mounted) showMessage(context, errorText(e));
